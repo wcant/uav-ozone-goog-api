@@ -1,0 +1,185 @@
+<html>
+	<head>
+
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+
+		<title></title>
+		<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+		<script type="text/javascript">
+			
+			var ge;
+			google.load("earth", "1");
+			
+			
+			
+			function initCB(instance)	{
+				ge = instance;
+				ge.getWindow().setVisibility(true);
+				
+				// add Nav control
+				ge.getNavigationControl().setVisibility(ge.VISIBILITY_AUTO);
+			}
+			
+			function failureCB(errorCode)	{
+				alert(errorCode);
+			}
+			
+			google.setOnLoadCallback(init);
+			
+
+
+
+			var map;
+			var infoWindow;
+
+			function initialize(){
+
+				//Lats/Lons must be read before initializing the map to get home location
+			
+				//Home
+				var fileURL = "20130930_o3flt1.dat";
+				
+				var allText=fileRequestCsv(fileURL);
+
+				var lines = CSVToArray( allText, ',' );
+
+				var i=1;
+				var length=lines.length-1;
+
+				// Each column of each line will be separated
+				// into the corresponding variable.
+				var time = new Array();
+				var lats = new Array();
+				var longs = new Array();
+				var ozone = new Array();
+				var alt = new Array();					
+
+				var j=0;	//indexes the new arrays to compensate for i starting at 1
+
+				for (i=1; i<=length; i++)
+				{
+					line=lines[i];
+					time[j]=line[0];
+					lats[j]=line[1];
+					longs[j]=(-1)*line[2];
+					ozone[j]=line[3];
+					alt[j]=line[4];
+					j++
+				}
+
+				//Draw Map
+				//var myLatLng = new google.maps.LatLng(lats[0], longs[0]);
+			    //var myOptions = {
+			    //  zoom: 18,
+			    //  center: myLatLng,
+			    //  mapTypeId: google.maps.MapTypeId.SATELLITE
+			    //};
+				//var map = new google.maps.Map(document.getElementById("map_canvas"),
+			    //    myOptions);
+				
+				google.earth.createInstance('map3d', initCB, failureCB);
+				
+				
+			    var ozoneCircles = new Array();
+
+				for(i=0;i<=length;i++){
+
+					var circleCoords = new google.maps.LatLng(lats[i], longs[i]);
+
+					var fillColor = ozoneColorScale(ozone[i]);
+
+			    	ozoneCircles = new google.maps.Circle({
+			      		
+			      		strokeColor: "#FFFFFF",
+			      		strokeOpacity: 0.8,
+			      		strokeWeight: 2,
+			      		fillColor: fillColor,
+			      		fillOpacity: 0.8,
+			      		map: map,
+			      		center: circleCoords,
+			      		radius: 10
+			    	});
+			    	
+				}
+			    
+			   
+			}	
+
+			function ozoneColorScale(ppbv) {
+
+			var color = "";
+
+			if (ppbv >= 0 && ppbv <= 5)
+			{
+				color="rgb(0,0,0)";
+			}
+			
+			if (ppbv > 5 && ppbv <= 10) 
+			{
+				color="rgb(0,0,175)";
+			}
+
+			if (ppbv > 10 && ppbv <= 15)
+			{
+				color="rgb(0,39,255)";
+			}
+
+			if (ppbv > 15 && ppbv <= 20)
+			{
+				color="rgb(0,175,255)";
+			}
+
+			if (ppbv > 20 && ppbv <=25)
+			{
+				color="rgb(59,255,195)";
+			}
+
+			if (ppbv > 25 && ppbv <= 30)
+			{
+				color="rgb(191,255,63)";
+			}
+
+			if (ppbv > 30 && ppbv <= 35)
+			{
+				color="rgb(255,195,0)";
+			}
+
+			if (ppbv > 35 && ppbv <=40)
+			{
+				color="rgb(255,71,0)";
+			}
+
+			if (ppbv > 40 && ppbv <= 45)
+			{
+				color="rgb(197,0,0)";
+			}
+
+			if (ppbv > 45 && ppbv <=50)
+			{
+				color="rgb(131,131,131)";
+			}
+
+			if (ppbv > 50)
+			{
+				color="rgb(211,211,211)";
+			}
+
+			
+			return color;
+
+		}
+						
+			
+			
+		</script>
+	</head>
+	
+	<body>
+	
+		<div id="map3d" style="height: 400px; width: 600px;"></div>
+	
+	</body>
+</html>
